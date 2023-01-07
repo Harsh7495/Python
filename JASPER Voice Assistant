@@ -1,0 +1,178 @@
+import sys
+import speech_recognition as sr
+import pyttsx3
+import datetime as dt
+import subprocess
+import webbrowser
+import wikipedia
+import pywhatkit
+import os
+import pyjokes
+import tkinter
+from tkinter import *
+
+
+#Engine initialization
+engine = pyttsx3.init('sapi5')
+voices = engine.getProperty('voices')
+engine.setProperty('rate', 170)
+engine.setProperty('voice', voices[1].id)
+
+#Speech Recognition
+listener = sr.Recognizer()
+
+def talk(audio):
+    print("Jarvis:"+ audio)
+    engine.say(audio)
+    engine.runAndWait()
+
+def listen():
+    with sr.Microphone() as source:
+        try:
+            listener.energy_threshold = 1000
+            listener.adjust_for_ambient_noise(source, 1.2)
+            print("Listening...")
+            audio = listener.listen(source)
+            command = listener.recognize_google(audio)
+            print("Your Command:",command)
+            command = command.lower()
+            if "jarvis" in command:
+                command = command.replace("jarvis ","")
+            return command
+        except Exception as e:
+            print("Jarvis: Sorry try again !!")
+            talk("Sorry try again !!")
+
+def open(command):
+    if "google" in command:
+        talk("opening...")
+        webbrowser.open("www.google.com")
+    elif "whatsapp" in command:
+        talk("opening...")
+        webbrowser.open("https://web.whatsapp.com/")
+    elif "facebook" in command:
+        talk("opening...")
+        webbrowser.open("https://www.facebook.com/login/")
+    elif "notepad" in command:
+        talk("opening...")
+        subprocess.call("Notepad.exe")
+    elif "command" in command:
+        talk("opening...")
+        subprocess.call("cmd.exe")
+    elif "wordpad" in command:
+        talk("opening...")
+        subprocess.Popen("C:\\Windows\\write.exe")
+    elif "calculator" in command:
+        talk("opening...")
+        subprocess.call("Calc.exe")
+    elif "youtube" in command:
+        talk("opening...")
+        webbrowser.open("https://www.youtube.com/")
+
+def wiki(command):
+    talk(wikipedia.summary(command, sentences=2))
+
+def search(command):
+    pywhatkit.search(command)
+    talk("searching")
+
+
+
+def wishme():
+
+    hour = int(dt.datetime.now().hour)
+    if hour>=0 and hour<12:
+        talk("Good Morning !!, How can i help you sir ??")
+    elif hour>= 12 and hour<17:
+        talk("Good Afternoon !!, How can i help you sir ??")
+    else:
+        talk("Good Evening !!, How can i help you sir ??")
+
+def yt(command):
+    pywhatkit.playonyt(command)
+    talk("playing..")
+
+def close(command):
+    talk("closing...")
+    if "all" in command:
+        os.system("taskkill /f /im notepad.exe")
+        os.system("taskkill /f /im calc.exe")
+        os.system("taskkill /f /im chrome.exe")
+        os.system("taskkill /f /im cmd.exe")
+        os.system("taskkill /f /im wordpad.exe")
+
+    elif "notepad" in command:
+        os.system("taskkill /f /im notepad.exe")
+
+    elif "calculator" in command:
+        os.system("taskkill /f /im Calc.exe")
+
+    elif "chrome" in command:
+        os.system("taskkill /f /im chrome.exe")
+
+    elif "command" in command:
+        os.system("taskkill /f /im cmd.exe")
+
+    elif "wordpad" in command:
+        os.system("taskkill /f /im wordpad.exe")
+
+def joke(command):
+    talk(pyjokes.get_joke())
+
+def activate():
+
+    command = listen()
+
+    if "hello" in command:
+        talk("Hello My name is jarvis !!")
+
+    elif "break" in command:
+        talk("Ok sir !! you can call me anytime.")
+        sys.exit(0)
+
+    elif "time" in command:
+        talk(dt.datetime.now().strftime("%H:%M:%S"))
+
+    elif "open" in command:
+        open(command)
+
+    elif "tell me something about" in command:
+        command = command.replace("tell me something about ", "")
+        wiki(command)
+
+
+
+    elif "play" in command:
+        command = command.replace("play ", "")
+        yt(command)
+
+    elif "search" in command:
+        search(command.replace("search ", ""))
+
+    elif "close" in command:
+        close(command)
+
+    elif "joke" in command:
+        joke(command)
+
+    else:
+      pass
+
+
+
+
+
+if __name__ == '__main__':
+    wishme()
+    window1 = tkinter.Tk()
+    window1.title('Jarvis')
+    window1.geometry("512x512")
+    window1.config(background="orange")
+    img = tkinter.PhotoImage(file="D:\gify.png")
+
+    lable = tkinter.Label(window1, image=img)
+    w = tkinter.Button(window1, text='Command',height=2,width=25,bd=15,font=30,relief=GROOVE, command=activate)
+    lable.place(x=0,y=0)
+    w.pack(side='bottom',pady=20)
+    window1.mainloop()
+
